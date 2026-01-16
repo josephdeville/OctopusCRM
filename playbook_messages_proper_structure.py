@@ -1,0 +1,367 @@
+import csv
+
+# All 109 contacts - Proper 3-part email structure
+# 1. Catchy opener
+# 2. Body: Problem + Solution
+# 3. Low friction CTA
+
+messages = {
+    # ElevenLabs (4 contacts) - $180M Series C, $330M ARR, $3.3B valuation
+    'https://linkedin.com/in/diana-maros-59398946/':
+        "$330M ARR and 3x valuation in 12 months. Your API users are converting to enterprise deals but showing up as self-serve in your CRM. We help AI companies fix attribution at this scale so GTM directors can walk into board meetings with pipeline numbers they trust. Worth a quick chat about cleaning up ElevenLabs' PLG-to-enterprise attribution?",
+
+    'https://linkedin.com/in/matt-alegria-30937645/':
+        "Question on the ElevenLabs enterprise motion: how are you tracking which API developers convert to six-figure contracts? PLG attribution wasn't built for that complexity. We've helped other AI companies separate self-serve from sales-sourced revenue so forecasting actually works. Want to see how we'd approach it for ElevenLabs?",
+
+    'https://linkedin.com/in/simon-a-w-taylor/':
+        "$1B to $3.3B in a year—that velocity breaks attribution. You're probably dealing with API users who close through sales but your CRM calls them self-serve. We help hypergrowth companies get clean source data so you're not optimizing channels on incomplete information. Could I send you some info on how we've solved this for other AI platforms?",
+
+    'https://linkedin.com/in/ryan-shary/':
+        "The PLG-to-enterprise transition at ElevenLabs is textbook hard. Fastest accounts started as API developers but closed through enterprise sales. We help companies track that full journey so you know which motion actually drove revenue. Worth learning more about multi-touch attribution for AI voice platforms?",
+
+    # Resolve AI (4 contacts) - $1B Series A with only $4M ARR
+    'https://linkedin.com/in/sdwatson/':
+        "$1B valuation at Series A with $4M ARR—board expects 10x in 18 months. You probably know what RevOps infrastructure needs building, but if you're on spreadsheets and part-time Salesforce admin, technical capacity isn't there. We help high-velocity startups build RevOps systems that scale with growth. Want to see what that looks like for Resolve?",
+
+    'https://linkedin.com/in/nick-puryear-437753b/':
+        "Lightspeed doesn't write $1B Series A checks lightly. You need enterprise pipeline velocity now, not after a 6-month hiring cycle. We help AEs at your stage sell with proper attribution and forecasting so RevOps can keep up with growth expectations. Could I show you how we'd set that up for Resolve?",
+
+    'https://linkedin.com/in/bharath-gowda-1423072/':
+        "Autonomous SRE at $1B valuation—marketing just became high-stakes. Every dollar needs attribution, every campaign needs pipeline proof. We help marketing teams connect touch to closed-won revenue so you're defending budget with data, not guesses. Worth a quick chat about marketing attribution for Resolve?",
+
+    'https://linkedin.com/in/chrooney/':
+        "$4M ARR → $1B valuation creates impossible expectations. You're building outbound motions without clear data on what works. We help growth teams get attribution clarity so you're optimizing on facts, not hunches. Want to learn more about growth attribution for autonomous SRE companies?",
+
+    # Adaptive Security (3 contacts) - OpenAI's first cyber investment
+    'https://linkedin.com/in/tyler-twiss-12b5b3221/':
+        "OpenAI's only cybersecurity bet. You're educating buyers on a problem they don't know exists yet—enterprises don't have budget line items for AI social engineering defense. We help category creators figure out which messages resonate so you're not guessing on positioning. Could I send you some info on messaging attribution for new categories?",
+
+    'https://linkedin.com/in/laurenkristenmelendez/':
+        "Congrats on the OpenAI backing. Here's the reality: 70% of your pipeline sits in security review for months answering the same SOC 2 questions manually. We help security companies automate that process so deal velocity doubles. Want to see how other cyber startups solved this?",
+
+    'https://linkedin.com/in/raquel-n-b0544b88/':
+        "100+ customers in under 2 years—recruiting is brutal when the market didn't exist until you created it. We help GTM recruiters find talent faster by showing them exactly which skills and backgrounds ramp fastest. Worth learning how other category creators hire at this velocity?",
+
+    # Lovable (4 contacts) - $200M ARR in <1 year, $6.6B valuation
+    'https://linkedin.com/in/kimmwalsh/':
+        "$200M ARR in under 12 months. Developers discover you everywhere—GitHub, Reddit, communities. Question: which partner actually influenced that $1M enterprise conversion? We help PLG companies track partnership attribution so revenue stops being invisible. Want to see how we'd map Lovable's partner influence?",
+
+    'https://linkedin.com/in/rmeadows/':
+        "$100M to $200M ARR in 4 months. Speed kills infrastructure. You're defending pipeline numbers based on systems built for $50M that are breaking at $200M. We help hypergrowth CROs rebuild RevOps that scales with velocity. Could I show you what that looks like for Lovable?",
+
+    'https://linkedin.com/in/cecistallsmith/':
+        "Tripled valuation to $6.6B in 5 months—marketing attribution collapsed. Developers come from GitHub, Reddit, communities, Twitter, paid ads. We help track multi-touch across those channels so you can defend marketing spend with confidence. Worth a chat about attribution for developer tools?",
+
+    'https://linkedin.com/in/elenaverna/':
+        "$200M ARR with 100 people. Your attribution model can't separate viral from paid from community influence. We help growth teams understand which top-of-funnel motions convert to revenue so you're optimizing the right channels. Want to learn more about PLG attribution at hypergrowth scale?",
+
+    # Unity (8 contacts) - 3,200+ layoffs, rejected $20B AppLovin merger
+    'https://linkedin.com/in/michael-rosman/':
+        "Unity's been through how many restructurings? Aura Division needs growth with half the team. We help post-restructuring companies rebuild attribution systems so you can prove what's working even with limited resources. Could I send you info on how other gaming companies did this?",
+
+    'https://linkedin.com/in/jessica-lindl-8b73a5/':
+        "Six layoff rounds and a rejected $20B merger. Board wants ROI proof but attribution systems broke during restructuring. We help marketing teams rebuild tracking so you're defending budget with data, not faith. Worth seeing how other post-restructuring companies solved this?",
+
+    'https://linkedin.com/in/patrick-beattie/':
+        "Unity rejected the AppLovin offer and laid off 3,200 people. Sales needs to prove efficiency. We help sales teams segment by deal quality so you're chasing accounts worth the effort, not burning cycles on low-probability deals. Want to learn more about pipeline scoring for gaming platforms?",
+
+    'https://linkedin.com/in/danny-cormack-b0633119/':
+        "Post-restructuring Unity is a different company. BD needs data on which partnerships drove revenue historically. We help business development focus on high-value partners instead of making strategic bets on gut feel. Could I show you partnership attribution for gaming companies?",
+
+    'https://linkedin.com/in/halperinamit/':
+        "3,200+ layoffs means global BD does more with less. We help identify which geographic markets actually convert so you're doubling down on what works instead of spreading resources thin. Worth a chat about regional attribution for gaming platforms?",
+
+    'https://linkedin.com/in/rachelpaeper/':
+        "Grow Programmatic at Unity post-restructuring. Publishers want proof Unity ads outperform competitors. We help ad platforms show clean attribution on which inventory drives better ROAS so you're selling on performance, not brand. Want to see how we'd approach this for Unity?",
+
+    'https://linkedin.com/in/hesutherland/':
+        "Growth marketing after six rounds of layoffs—expected to hit targets with fraction of the budget. We help marketing teams tie spend to pipeline so every dollar is defensible. Attribution isn't nice-to-have anymore. Could I send you some info on marketing attribution for gaming companies?",
+
+    'https://linkedin.com/in/stefaniedombek/':
+        "Senior director of growth at post-layoff Unity. Pressure's on to prove efficiency. We help growth teams understand which channels drive enterprise conversions so budget allocation is based on data, not guesses. Want to learn more about growth attribution for gaming platforms?",
+
+    # Xsolla (9 contacts) - Cross-platform D2C expansion
+    'https://linkedin.com/in/christophercheever/':
+        "Xsolla expanded into Epic and Windows stores. Enterprise publishers want to know which platform drives better LTV. We help gaming commerce companies track revenue by storefront so you're investing dev resources based on data, not instinct. Worth a quick chat about multi-platform attribution?",
+
+    'https://linkedin.com/in/karlstricker/':
+        "Global commerce across Steam, Epic, Windows, web—each with different margins. We help business development prioritize platforms based on revenue attribution by channel so you know which integrations justify the cost. Could I show you how we'd approach this for Xsolla?",
+
+    'https://linkedin.com/in/yuliyaarlova/':
+        "USA BD for multi-platform commerce. Publishers ask which storefront converts better for their genre. We help gaming platforms show publishers comparative data so they choose you over building in-house. Want to see partnership attribution for gaming commerce?",
+
+    'https://linkedin.com/in/travisandersonpro/':
+        "Global BD for gaming commerce. Publishers want to know if your tech increases revenue versus their current setup. We help platforms show lift data so deals become growth investments instead of cost conversations. Worth learning more about proving ROI for gaming infrastructure?",
+
+    'https://linkedin.com/in/berkleyegenes/':
+        "CMO at a gaming commerce platform with 10+ payment methods and 5+ storefronts—can't message all that. We help marketing teams identify which features close deals so messaging focuses on what matters. Could I send you info on feature attribution for gaming platforms?",
+
+    'https://linkedin.com/in/samgaglani/':
+        "Enterprise partnerships for gaming commerce. Publishers want case studies showing lift. We help platforms prove which games increased revenue after implementation so deals don't stall on ROI questions. Want to see how we build attribution-backed case studies?",
+
+    'https://linkedin.com/in/bridgetstacy/':
+        "Marketing commerce to game publishers evaluating you against Stripe and custom builds. We help prove why gaming-specific features drive more revenue so you're not just another payment processor. Worth a chat about competitive attribution for gaming commerce?",
+
+    'https://linkedin.com/in/aimanseksembaeva/':
+        "Strategic sales—publishers are skeptical of platform fees unless you prove incremental revenue. We help sales teams show attribution data proving lift so deals don't become cost-benefit negotiations you lose. Could I show you how to build ROI demos for gaming publishers?",
+
+    'https://linkedin.com/in/zachary-s-5b0b3347/':
+        "BD for commerce infrastructure. Publishers ask which competitors use you and what results they saw. We help build performance benchmarks backed by clean attribution so social proof has credibility. Want to learn more about competitive benchmarking for gaming platforms?",
+
+    # Avid (8 contacts) - Pro Tools, AI features launch
+    'https://linkedin.com/in/richardmgriffin/':
+        "Selling Pro Tools to broadcast and enterprise. Studios ask if AI features justify the upgrade cost. We help show which AI tools get used post-purchase so price stops being the objection. Could I send you info on feature adoption tracking for audio software?",
+
+    'https://linkedin.com/in/kavita-seebran-2590734/':
+        "RevOps at Avid. Board wants to know which AI features drive upgrades versus just inflate release notes. We help tie feature usage to expansion revenue so product investment is guided by data. Worth a chat about feature attribution for audio production tools?",
+
+    'https://linkedin.com/in/reneestokel/':
+        "Lifecycle marketing pushing AI features. We help identify which features drive upgrades so email campaigns promote what converts, not what sounds cool. Want to see feature performance data for audio software campaigns?",
+
+    'https://linkedin.com/in/jack-northcott-9ab709/':
+        "VP Sales Americas—Pro Tools competes against free DAWs. Studios want ROI proof that AI features save time justifying the cost. We help build calculators backed by usage data so price becomes value conversation. Could I show you how we'd build this for Avid?",
+
+    'https://linkedin.com/in/kara-martin-beijer-0b28981/':
+        "Corporate marketing for audio tools. Every DAW claims AI features now. We help prove what makes Avid's worth paying for using usage data showing time saved or quality improved. Worth learning more about competitive positioning for audio production?",
+
+    'https://linkedin.com/in/lorrie-nolan-a04b655/':
+        "Sales ops—reps need to know which bundles close fastest. We help identify whether studios buy Pro Tools plus plugins or just the DAW so reps lead with what works. Want to see bundle performance data for audio software?",
+
+    'https://linkedin.com/in/markpuzas/':
+        "Cloud and video sales—studios evaluate cloud versus on-prem. We help show customer retention by deployment type so that data closes deals. Could I send you retention benchmarks for audio production platforms?",
+
+    'https://linkedin.com/in/keri-middleton/':
+        "Demand gen for Pro Tools in a crowded market. Studios get pitched daily by Logic, Ableton, FL Studio. We help prove why Avid's worth the premium based on what pros actually care about. Worth a chat about competitive differentiation for audio production?",
+
+    # TuneCore (4 contacts) - $500M lawsuit, royalty fraud crisis
+    'https://linkedin.com/in/bennett-henson-43708b90/':
+        "TuneCore's under fire from UMG with a $500M lawsuit. BD pitching partnerships while getting sued. We help rebuild trust by showing fraud prevention stats so partnership deals don't die on legal liability. Could I show you how other platforms rebuilt partner confidence?",
+
+    'https://linkedin.com/in/kevinnugentmba/':
+        "Business operations during fraud investigation. Artists want proof their payments are protected. We help show audit trails and detection systems so artists don't move to DistroKid where trust isn't broken. Want to see transparency frameworks for music distribution?",
+
+    'https://linkedin.com/in/brianjamesmiller/':
+        "CRO during UMG lawsuit and India fraud case. Artists are asking if their royalties are safe. We help platforms build transparency around fraud prevention so new signups don't tank. Trust is revenue. Worth learning how to communicate security to artists?",
+
+    'https://linkedin.com/in/ericagenovese/':
+        "Growth and retention during a $500M lawsuit—artists are nervous. We help retention campaigns address trust directly with transparency, not avoidance. Ignoring it makes artists think you're hiding something. Could I send you messaging frameworks for crisis retention?",
+
+    # Waves Audio (4 contacts) - Free plugin launch
+    'https://linkedin.com/in/kristi-chesney-00854119b/':
+        "Waves launched free plugins while selling $200 bundles. Sales ops question: does free cannibalize or expand? We help track conversion from free to paid so pricing strategy is based on data, not guesses. Want to see freemium economics for audio plugins?",
+
+    'https://linkedin.com/in/derekleesmith/':
+        "Consumer sales with free plugins, $49 plugins, and $200 bundles—producers get confused. We help identify conversion by entry point so reps know what drives lifetime value. Could I show you tier performance data for audio software?",
+
+    'https://linkedin.com/in/sam-terkel-0aa0515b/':
+        "Online sales with freemium. Free users cost support resources. We help show free-to-paid conversion economics so you know if freemium helps or hurts. Worth a chat about freemium attribution for audio plugins?",
+
+    'https://linkedin.com/in/nirsound/':
+        "CRO and SEO—free plugin launch drives traffic. We help connect organic search → free download → paid upgrade so you're optimizing for revenue, not vanity metrics. Want to learn more about conversion tracking for audio software?",
+
+    # Native Instruments (4 contacts) - 150+ instruments, SKU complexity
+    'https://linkedin.com/in/caitlin-fischer/':
+        "Strategic ops for Komplete with 150+ instruments—GTM can't message all that. We help identify which products drive conversions so positioning focuses on what matters. Could I send you product performance data for music production software?",
+
+    'https://linkedin.com/in/melissamisicka/':
+        "Go-to-market for mixing and mastering. Producers ask which plugins they need. We help guide buyers based on workflow so choice doesn't overwhelm and kill conversion. Want to see how to build product recommendation systems for audio software?",
+
+    'https://linkedin.com/in/anthonygabriele/':
+        "CMO managing 15+ bundle tiers—marketing can't message all effectively. We help identify which bundles convert by producer type so campaigns speak to specific audiences. Worth a chat about bundle attribution for music production tools?",
+
+    'https://linkedin.com/in/juergen-wirtz/':
+        "Global sales with localized bundle pricing. Producers compare prices and get confused. We help reps explain bundle differences clearly by region so deals don't slow on basic pricing questions. Could I show you regional pricing clarity for audio software?",
+
+    # DistroKid (3 contacts) - $1.3B valuation, Direct platform
+    'https://linkedin.com/in/angela-lyda-7704869/':
+        "DistroKid launched Direct for merchandise. Growth question: do artists understand the integration? We help show which fans bought merch after discovering music so product-market fit is data, not guesses. Want to see cross-product attribution for music distribution?",
+
+    'https://linkedin.com/in/ashley-young-roux/':
+        "$1.3B valuation and adding commerce—attribution gets brutal. We help connect music streams to merch sales so campaign ROI becomes visible. Could I send you multi-product attribution examples for music platforms?",
+
+    'https://linkedin.com/in/weswalls/':
+        "Running Bandzoogle under DistroKid. Artists ask which tool drives more revenue. We help show comparative data so artists know where to invest. Worth learning about cross-platform attribution for music distribution?",
+
+    # Splice (3 contacts) - $50M Spitfire acquisition
+    'https://linkedin.com/in/markthomas10/':
+        "Splice bought Spitfire for $50M. Product marketing challenge: producers don't know which tier they need. We help segment messaging by production style so you're not overwhelming buyers. Could I show you tier recommendation systems for music production?",
+
+    'https://linkedin.com/in/meredith-allen-a0a562109/':
+        "Spitfire acquisition plus UMG partnership. BD pitching education. We help show educational adoption to paid conversion so partnership ROI becomes clear. Want to see education-to-paid tracking for music platforms?",
+
+    'https://linkedin.com/in/samu-rast/':
+        "BD for 10M producers. Partners ask which users have premium budgets. We help segment by spending behavior so partnership revenue potential is measurable. Worth a chat about user segmentation for music production platforms?",
+
+    # LANDR (3 contacts) - Acquired Reason Studios
+    'https://linkedin.com/in/anthonyalbanese8/':
+        "LANDR bought Reason Studios. Content challenge: producers don't understand why it matters. We help show how Reason users benefit from LANDR mastering so cross-sell campaigns hit the target. Could I send you cross-sell messaging examples for music production?",
+
+    'https://linkedin.com/in/gregory-steele/':
+        "Marketing automation for 7M+ users across mastering and DAW. We help identify Reason users who need mastering so email workflows capture that revenue. Want to see cross-product identification for music platforms?",
+
+    'https://linkedin.com/in/jordan-heather-497917b6/':
+        "Product marketing for AI mastering plus legacy DAW. We help segment messaging by production style so you're not pushing Reason to Ableton users. Worth learning about audience segmentation for music production?",
+
+    # coherence (3 contacts) - Multiplayer backend
+    'https://linkedin.com/in/manuel-dechet/':
+        "Coherence 2.0 launched. BD challenge: studios ask which engine works. We help show Unity versus Unreal performance data so enterprise deals move on proof, not promises. Could I send you engine performance comparisons for multiplayer infrastructure?",
+
+    'https://linkedin.com/in/jsgbailey/':
+        "Vampire Survivors as proof point. Indies ask if it scales. We help show live game performance metrics so studios trust your backend over custom builds. Want to see how to build scalability proof for gaming infrastructure?",
+
+    'https://linkedin.com/in/wesley-adams-10a63a19/':
+        "Marketing backend-as-a-service. Studios don't understand cost until they're over budget. We help show transparent pricing by concurrent users so studios don't bounce before sales. Worth a chat about pricing transparency for gaming infrastructure?",
+
+    # Resemble AI (2 contacts) - $13M Series B
+    'https://linkedin.com/in/willkrispin/':
+        "$13M Series B for deepfake detection. Partnerships shifted from content to fraud prevention. We help show how voice authentication prevents account takeover so partnership pipeline moves on clear use cases. Could I send you use case clarity examples for AI voice platforms?",
+
+    'https://linkedin.com/in/joyghosh2/':
+        "Rapid Voice Clone 2.0 plus deepfake detection. Sales pitches both. We help segment demos by buyer type so security teams see security value, not content creation. Want to see audience segmentation for dual-use AI products?",
+
+    # Spitfire Audio (2 contacts) - Acquired by Splice
+    'https://linkedin.com/in/clairemas/':
+        "Splice acquired Spitfire for $50M. Composers nervous about quality. We help show post-acquisition product development continues so customers don't churn before you lose brand. Could I show you retention messaging for post-acquisition brands?",
+
+    'https://linkedin.com/in/ameliagammon/':
+        "CRO post-acquisition. Enterprise customers want stability proof. We help show retention rates by segment so you know which accounts are at risk before they cancel. Worth learning about churn prediction for acquired companies?",
+
+    # AutoTune (2 contacts) - AutoTune 2026 release
+    'https://linkedin.com/in/sarah-eden-6941b332/':
+        "AutoTune 2026 launched—new SKUs, killed old ones. Producers confused. We help guide based on use case so conversion doesn't drop from choice overwhelm. Want to see product recommendation systems for audio plugins?",
+
+    'https://linkedin.com/in/sherrihendrickson/':
+        "Product line restructured. Partnerships pitch to DAW companies. We help segment by workflow so co-marketing pushes the right product. Could I send you partnership segmentation examples for audio software?",
+
+    # WellSaid Labs (2 contacts) - 150% net retention
+    'https://linkedin.com/in/mary-jensen-92503314/':
+        "Caruso launched, 150% retention. Not all accounts expand evenly. We help identify which enterprise customers have expansion budget so upsell revenue gets claimed. Want to see expansion prediction for AI voice platforms?",
+
+    'https://linkedin.com/in/adriannaranjo/':
+        "Enterprise grew 6x with 150% retention. RevOps forecasting breaks. We help track feature usage to predict expansion so pipeline forecast isn't guessing on upsell timing. Worth a chat about expansion forecasting for SaaS companies?",
+
+    # GameAnalytics (2 contacts) - Owned by Mobvista
+    'https://linkedin.com/in/abisola-olusanya/':
+        "GameAnalytics under Mobvista. Studios ask if data feeds into ad targeting. We help separate analytics independence from ad network influence so enterprise studios adopt. Could I show you trust-building for analytics platforms with ad conflicts?",
+
+    'https://linkedin.com/in/falkoboecker/':
+        "BD to indies who ask if results favor Mobvista ads. We help prove data objectivity with third-party validation so studios don't choose independent analytics. Want to see objectivity proof for analytics platforms?",
+
+    # Pragma (2 contacts) - $12.75M Series B
+    'https://linkedin.com/in/adrianarboleda/':
+        "$12.75M Series B and FirstLook acquisition. Studios ask if integration works. We help show studios using both together so they see the value, not two separate tools. Could I send you integration proof examples for gaming backend platforms?",
+
+    'https://linkedin.com/in/ernestle/':
+        "FirstLook acquisition plus $12.75M from Square Enix. AAA studios ask why not build custom. We help show time-to-market data comparing Pragma to in-house so deals don't die on build-versus-buy debates. Want to see build-versus-buy frameworks for gaming infrastructure?",
+
+    # Universal Audio (2 contacts) - UAD/Apollo
+    'https://linkedin.com/in/david-lenat-76184144/':
+        "Universal Audio sells UAD plugins and Apollo interfaces. Studios ask which they need. We help show plugin performance differences between native and UAD hardware so deals move on technical clarity. Could I show you product comparison frameworks for audio hardware/software?",
+
+    'https://linkedin.com/in/jchaydon/':
+        "Growth across hardware and software. Don't know which drives LTV. We help track whether hardware buyers subscribe to plugins so expansion strategy is measurable. Worth a chat about cross-product attribution for audio companies?",
+
+    # ARTURIA (2 contacts) - French synth company
+    'https://linkedin.com/in/david-dolan/':
+        "Arturia has 30+ hardware synths and V Collection. US sales with French pricing. We help reps explain bundle differences so deals don't stall on pricing questions. Want to see pricing clarity frameworks for global audio companies?",
+
+    'https://linkedin.com/in/francoisruault/':
+        "CRO managing global sales with complex SKUs. Reps don't know which product to lead with. We help show which products convert by region so rep training focuses right. Could I send you regional product performance data for audio companies?",
+
+    # Ableton (2 contacts) - Live DAW
+    'https://linkedin.com/in/whitedanny/':
+        "Ableton Live in schools globally. Education sales operates without tracking. We help show student-to-paid conversion by school so education investment ROI becomes visible. Want to see education attribution for music production software?",
+
+    'https://linkedin.com/in/daniel-plümer-47aa7613/':
+        "Sales pitches enterprise and education simultaneously. Messaging doesn't segment. We help separate touring musician needs from classroom needs so conversion improves. Worth learning about audience segmentation for music production tools?",
+
+    # FL Studio (2 contacts) - Lifetime updates model
+    'https://linkedin.com/in/henry-harrell/':
+        "FL Studio offers lifetime updates—can't upsell existing customers. We help acquisition strategies account for zero expansion revenue so CAC is optimized for unit economics. Could I show you acquisition optimization for one-time purchase software?",
+
+    'https://linkedin.com/in/christina-anastasiou-36678759/':
+        "Revenue and compliance with no recurring revenue. Forecasting is brutal. We help predict new customer acquisition patterns so revenue forecast isn't guessing on seasonality. Want to see forecasting models for one-time purchase software?",
+
+    # Audiokinetic (2 contacts) - Wwise middleware
+    'https://linkedin.com/in/oliviergl/':
+        "Wwise middleware for game audio. Studios ask which engines integrate best. We help show performance comparisons across Unity, Unreal, and custom so technical evaluations move on proof. Could I send you engine performance benchmarks for game audio middleware?",
+
+    'https://linkedin.com/in/nour-a-8641305/':
+        "Marketing Wwise—audio designers don't know it exists because you're marketing to wrong role. We help target audio leads instead of studio heads so adoption increases. Worth a chat about audience targeting for technical game tools?",
+
+    # eMastered (2 contacts) - AI mastering
+    'https://linkedin.com/in/collin-mcloughlin-33603a125/':
+        "eMastered competes with LANDR in commoditized AI mastering. Producers can't hear quality differences. We help show A/B tests proving eMastered beats competitors so pricing power returns. Want to see competitive proof frameworks for audio AI?",
+
+    'https://linkedin.com/in/smith-carlson-6a0499117/':
+        "AI mastering against LANDR's 7M users. Producers choose based on brand. We help build case studies from recognized artists so producers don't default to the name they know. Could I show you artist proof strategies for music production tools?",
+
+    # PreSonus (2 contacts) - Studio One DAW
+    'https://linkedin.com/in/bmullens/':
+        "PreSonus sells Studio One plus hardware. Sales coordinates both. We help show whether hardware buyers adopt Studio One so cross-sell strategy is measurable. Want to see cross-product tracking for audio companies?",
+
+    'https://linkedin.com/in/camille-o-kelley-2554b2225/':
+        "Studio One competing with Pro Tools and Logic. Studios ask why switch. We help show migration case studies with quantified workflow improvements so switching costs become switching value. Worth learning about migration proof for audio production software?",
+
+    # Steinberg (2 contacts) - Cubase
+    'https://linkedin.com/in/joe-haeger-86300aa6/':
+        "Email marketing for Cubase with legacy users. Longtime users don't upgrade. We help segment emails by version to show upgrade value so campaigns target converters. Could I send you upgrade segmentation examples for music production software?",
+
+    'https://linkedin.com/in/schreiberstefan/':
+        "Strategic BD—plugin makers ask about VST3 adoption. We help show which VST version has market share so partnership technical decisions use data. Want to see ecosystem adoption data for music production platforms?",
+
+    # Single-contact companies
+    'https://linkedin.com/in/nealeshpatel/':
+        "Crunchbase has 80M+ profiles. Customers don't know which fields are reliable. We help show data accuracy by source so enterprise deals don't stall on quality questions. Could I send you data quality frameworks for B2B data platforms?",
+
+    'https://linkedin.com/in/daniel-olea-4408a278/':
+        "Olea builds kiosks for healthcare and retail. GTM doesn't segment by industry. We help show healthcare ROI separately from retail so your pitch solves both well. Want to see vertical segmentation for hardware platforms?",
+
+    'https://linkedin.com/in/tbirgisson/':
+        "Serval builds observability for Kubernetes. Developers discover through GitHub, sales closes enterprise. We help track which open source users work at target accounts so pipeline generation is measurable. Worth learning about open source to enterprise attribution?",
+
+    'https://linkedin.com/in/deckertjustin/':
+        "Pryzm helps web3 with token infrastructure. GTM cycles follow market volatility. We help adjust pipeline forecasts for crypto conditions so board presentations hit realistic targets. Could I show you crypto-adjusted forecasting models?",
+
+    'https://linkedin.com/in/alejodrughieri/':
+        "Finalis builds marketplace for private market data. Banks ask if competitor data is exposed. We help prove data isolation with architecture diagrams so deals don't die on security review. Want to see security proof frameworks for fintech platforms?",
+
+    'https://linkedin.com/in/gloria-alonso-sanchez-365a56b/':
+        "Ample builds EV charging. Fleet operators ask for ROI proof before pilots. We help show TCO versus diesel so deals don't stall in procurement for months. Worth a chat about ROI proof for climate tech infrastructure?",
+
+    'https://linkedin.com/in/parkersilzer/':
+        "Soundtoys makes creative plugins. New producers don't know these exist. We help target new DAW buyers instead of legacy users so market share grows. Could I send you audience targeting strategies for legacy audio brands?",
+
+    'https://linkedin.com/in/chris-hammond-804aa82/':
+        "Fender sells guitars, amps, and subscriptions. Retailers ask why Fender competes via DTC. We help explain channel strategy without threatening relationships so orders don't drop. Want to see channel conflict resolution for consumer brands?",
+
+    'https://linkedin.com/in/maphale/':
+        "Warner Bros Discovery post-merger. Systems don't integrate, workflows broke. We help show which tools survived merger so technology adoption moves on strategy clarity. Worth learning about post-merger technology rationalization?",
+
+    'https://linkedin.com/in/martin-wilkes-11bb5616/':
+        "Firelight makes FMOD competing with Wwise. Studios default to Audiokinetic. We help show FMOD technical advantages with benchmarks so deals move on proof, not preference. Could I show you competitive differentiation for gaming middleware?",
+
+    'https://linkedin.com/in/kimberley-fogg-b49975a3/':
+        "Games Growth Guild consulting for mobile studios. Studios ask for case studies from hits. We help show revenue growth from specific titles so studios pay consulting fees with confidence. Want to see proof frameworks for gaming consultants?",
+
+    'https://linkedin.com/in/joshua-nunez-93531996/':
+        "Cassette Recordings project management. Artists ask for producer track records. We help show streaming performance of past projects so artists choose studios with proven results. Worth learning about portfolio proof for music production studios?",
+
+    'https://linkedin.com/in/mark-r-traeger-8b23051/':
+        "Eventide makes premium effects—3x competitor pricing. We help demonstrate sonic quality differences justifying premium so deals don't default to cheaper options. Could I send you premium value proof frameworks for audio companies?",
+
+    'https://linkedin.com/in/mahtabahan/':
+        "Eventide Audio has 50-year legacy. Younger producers don't know the history. We help build brand recognition instead of assuming it so market share doesn't go to newer brands. Want to see brand building strategies for legacy audio companies?",
+
+    'https://linkedin.com/in/margarita-grubina/':
+        "Respeecher does voice conversion for film and gaming. Studios ask how it differs from Resemble AI. We help show voice quality comparisons for specific use cases so deals don't stall on competitive evaluation. Worth a chat about competitive proof for AI voice platforms?",
+
+    'https://linkedin.com/in/adi-sagiv/':
+        "G-CMO provides fractional CMO services. Companies ask if you understand their market. We help segment positioning by industry so leads don't assume you're generalist. Could I show you vertical positioning for fractional services?",
+
+    'https://linkedin.com/in/nikkiraheja/':
+        "TTPJ Productions creating music content. Challenge: turning audience into revenue. We help track which content formats drive monetization so production budget goes to what converts. Want to see content attribution for creator businesses?"
+}
+
+print(f"Properly structured: {len(messages)} contacts")
+print("Format: Opener → Problem + Solution → Low-friction CTA")
